@@ -23,6 +23,10 @@
   <!-- Link para o plugin Chart.js Data Labels -->
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
 
+  <!-- Adicione este link no head do seu HTML -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropperjs/dist/cropper.min.css" />
+
+
 </head>
 <body>
 
@@ -49,9 +53,16 @@
                 <label for="containerNumber" class="form-label">Número do Contêiner</label>
                 <div class="input-container">
                   <input type="text" class="form-control form-control-lg" id="containerNumber" placeholder="EX.:ABC123" required pattern="[A-Za-z0-9]+">
-                  <button type="button" id="openCameraBtn" class="btn btn-secondary">Abrir Câmera</button>
+                  <!-- Câmera -->
+                  <button type="button" id="openCameraBtn" class="btn btn-secondary">Câmera</button>
+                  
                   <button type="button" id="closeCameraBtn" class="btn btn-danger" style="display: none;">Fechar Câmera</button>
                   <video id="cameraPreview" width="300" height="200" autoplay style="display: none; border: 1px solid #ccc;"></video>
+
+<!-- Botão de Captura -->
+                  <button type="button" id="openCameraBtn" class="btn btn-danger" style="">Capturar</button>
+
+
                 </div>
               </div>
               <div class="mb-4">

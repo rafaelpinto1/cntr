@@ -206,28 +206,80 @@ const closeCameraBtn = document.getElementById('closeCameraBtn');
 const cameraPreview = document.getElementById('cameraPreview');
 let cameraStream = null;
 
-// Função para abrir a câmera
+// Função para abrir a câmera (câmera traseira por padrão)
 openCameraBtn.addEventListener('click', function() {
-    // Verifica se o navegador suporta a API de acesso à câmera
     if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-        // Solicita permissão para acessar a câmera
-        navigator.mediaDevices.getUserMedia({ video: true })
-            .then(function(stream) {
-                // Exibe o vídeo da câmera no elemento <video>
-                cameraPreview.srcObject = stream;
-                cameraPreview.style.display = "block"; // Torna o vídeo visível
-                openCameraBtn.style.display = "none"; // Esconde o botão após abrir a câmera
-                closeCameraBtn.style.display = "inline-block"; // Exibe o botão de fechar câmera
+        // Solicita permissão para acessar a câmera traseira
+        navigator.mediaDevices.getUserMedia({
+            video: { facingMode: 'environment' }
+        })
+        .then(function(stream) {
+            // Exibe o vídeo da câmera no elemento <video>
+            cameraPreview.srcObject = stream;
+            cameraPreview.style.display = "block"; // Torna o vídeo visível
+            openCameraBtn.style.display = "none"; // Esconde o botão após abrir a câmera
+            closeCameraBtn.style.display = "inline-block"; // Exibe o botão de fechar câmera
 
-                // Armazena o stream da câmera para poder interrompê-lo depois
-                cameraStream = stream;
-            })
-            .catch(function(error) {
-                alert("Não foi possível acessar a câmera: " + error.message);
-            });
+            // Armazena o stream da câmera para poder interrompê-lo depois
+            cameraStream = stream;
+        })
+        .catch(function(error) {
+            alert("Não foi possível acessar a câmera: " + error.message);
+        });
     } else {
         alert("Seu navegador não suporta o acesso à câmera.");
     }
+});
+
+// Função para capturar uma imagem da câmera e executar OCR
+document.getElementById('captureBtn').addEventListener('click', function() {
+    // Cria um canvas para capturar a imagem do vídeo
+    const canvas = document.createElement('canvas');
+    canvas.width = cameraPreview.videoWidth;
+    canvas.height = cameraPreview.videoHeight;
+    const ctx = canvas.getContext('2d');
+
+    // Captura o quadro do vídeo
+    ctx.drawImage(cameraPreview, 0, 0, canvas.width, canvas.height);
+
+    // Aplica filtro para melhorar a qualidade da imagem
+    ctx.filter = 'contrast(200%) brightness(120%)'; // Aumenta o contraste e o brilho
+    ctx.drawImage(canvas, 0, 0); // Reaplica a imagem no canvas
+
+    // Converte para escala de cinza para melhorar o OCR
+    let imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    let data = imageData.data;
+
+    // Loop para converter imagem em preto e branco (escala de cinza)
+    for (let i = 0; i < data.length; i += 4) {
+        let r = data[i];
+        let g = data[i + 1];
+        let b = data[i + 2];
+
+        // Cálculo para intensidade de cinza
+        let gray = (r * 0.3 + g * 0.59 + b * 0.11);
+        data[i] = gray; // Red
+        data[i + 1] = gray; // Green
+        data[i + 2] = gray; // Blue
+    }
+
+    // Atualiza a imagem processada
+    ctx.putImageData(imageData, 0, 0);
+
+    // Usando o Tesseract para reconhecer o texto da imagem capturada
+    Tesseract.recognize(
+        canvas.toDataURL(), // Passa a imagem como um Data URL
+        'eng', // O idioma a ser usado (no caso, inglês)
+        {
+            logger: m => console.log(m),
+            tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789' // Limita o OCR a caracteres alfanuméricos
+        }
+    ).then(({ data: { text } }) => {
+        // Preenche o número do contêiner com o texto reconhecido
+        document.getElementById('containerNumber').value = text.trim().toUpperCase(); // Preenche com maiúsculas
+    }).catch(error => {
+        console.error("Erro ao realizar OCR: ", error);
+    });
 });
 
 // Função para fechar a câmera
@@ -240,27 +292,3 @@ closeCameraBtn.addEventListener('click', function() {
     openCameraBtn.style.display = "inline-block"; // Exibe o botão de abrir câmera
     closeCameraBtn.style.display = "none"; // Esconde o botão de fechar câmera
 });
-
-// Função de OCR - Tesseract.js
-function startOCR() {
-    // Cria um canvas para capturar a imagem do vídeo
-    const canvas = document.createElement('canvas');
-    canvas.width = cameraPreview.videoWidth;
-    canvas.height = cameraPreview.videoHeight;
-    const ctx = canvas.getContext('2d');
-    ctx.drawImage(cameraPreview, 0, 0, canvas.width, canvas.height);
-
-    // Usando o Tesseract para reconhecer o texto da imagem capturada
-    Tesseract.recognize(
-        canvas.toDataURL(), // Passa a imagem como um Data URL
-        'eng', // O idioma a ser usado (no caso, inglês)
-        {
-            logger: m => console.log(m) // Aqui você pode acompanhar o progresso
-        }
-    ).then(({ data: { text } }) => {
-        // Preenche o número do contêiner com o texto reconhecido
-        document.getElementById('containerNumber').value = text.trim().toUpperCase(); // Preenche com maiúsculas
-    }).catch(error => {
-        console.error("Erro ao realizar OCR: ", error);
-    });
-}
