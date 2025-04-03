@@ -199,39 +199,80 @@ canvas {
     margin-bottom: 20px;
   }
 }
-/* Certifique-se de que os gráficos não ultrapassem os limites da página */
-canvas {
-  width: 100% !important;
-  height: 100% !important;
-}
 
-/* Ajusta a legenda do gráfico */
-.chart-container {
-  position: relative;
-  width: 100%;
-  height: 100%;
-}
-
-.chart-container .chartjs-legend {
+/* Personalizando o botão de abrir a câmera */
+.input-container {
   display: flex;
-  justify-content: center; /* Centraliza a legenda */
-  flex-wrap: wrap; /* Permite que a legenda quebre em múltiplas linhas se necessário */
-  margin-top: 10px; /* Espaçamento entre o gráfico e a legenda */
+  flex-direction: column; /* Alinha o botão e o input em coluna */
+  align-items: center;
+  justify-content: center;
+  width: 100%;
 }
 
-.chartjs-legend {
+#openCameraBtn {
+  margin-top: 10px;
+  background-color: #28a745; /* Cor de fundo verde */
+  border-radius: 15px;
   font-size: 1rem;
-  color: #333;
-  text-align: center;
-  padding: 5px;
+  padding: 10px;
+  color: white;
+  border: none;
+  transition: background-color 0.3s;
 }
 
-/* Responsividade para a legenda em dispositivos móveis */
+#openCameraBtn:hover {
+  background-color: #218838; /* Cor de hover mais escura */
+}
+
+/* Estilo do vídeo da câmera */
+#cameraPreview {
+  display: none; /* Inicialmente escondido */
+  width: 100%;
+  max-width: 90%;  /* Ajusta a largura para não ultrapassar 90% da tela */
+  height: auto;   /* Mantém a altura proporcional */
+  border: 1px solid #ccc;
+  margin-top: 20px;
+  object-fit: cover;  /* Garante que a imagem do vídeo se ajuste sem esticar */
+  max-height: 60vh; /* Limita a altura para que o vídeo não ultrapasse 60% da altura da tela */
+  margin: 0 auto; /* Centraliza o vídeo */
+  display: block;  /* Garantir que o vídeo seja exibido em bloco */
+}
+
+/* Estilo do botão de fechar câmera */
+#closeCameraBtn {
+  background-color: #dc3545; /* Cor de fundo vermelha para fechar */
+  color: white;
+  border-radius: 15px;
+  font-size: 1rem;
+  padding: 10px;
+  border: none;
+  margin-top: 10px;
+  transition: background-color 0.3s;
+}
+
+#closeCameraBtn:hover {
+  background-color: #c82333; /* Cor de hover mais escura */
+}
+
+/* Responsividade do botão de abrir a câmera */
 @media (max-width: 768px) {
-  .chart-container .chartjs-legend {
-    justify-content: center; /* Centraliza a legenda para telas menores */
+  #openCameraBtn {
+    font-size: 1rem;
+    padding: 8px 12px;
   }
-  .chartjs-legend {
-    font-size: 0.9rem; /* Ajusta o tamanho da fonte da legenda para dispositivos móveis */
+
+  #cameraPreview {
+    max-width: 100%; /* Vídeo ocupa 100% da largura da tela em dispositivos móveis */
+    height: auto;
+    max-height: 60vh; /* Ajusta a altura máxima */
   }
+
+  #closeCameraBtn {
+    font-size: 1rem;
+    padding: 8px 12px;
+  }
+}
+/* Faz o texto digitado aparecer em maiúsculas */
+.form-control {
+  text-transform: uppercase; /* Exibe tudo em maiúsculas */
 }
